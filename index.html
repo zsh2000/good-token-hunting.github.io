@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>Good Token Hunting: A Hitchhiker's Guide to Token Selection for Visual Geometry Transformers</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h3 class="title is-3 publication-title">Good Token Hunting: A Hitchhiker's Guide to Token Selection for Visual Geometry Transformers</h3>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://zsh2000.github.io/">Shuhong Zheng</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://moechsle.github.io/">Michael Oechsle</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://eriksandstroem.github.io/">Erik Sandstr&ouml;m</a><sup>2</sup>,</span>
+            <br>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=eQ0om98AAAAJ&hl=en">Marie-Julie Rakotosaona</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://federicotombari.github.io/">Federico Tombari</a><sup>2,3&dagger;</sup>,</span>
+            <span class="author-block">
+              <a href="https://www.gilitschenski.org/igor/">Igor Gilitschenski</a><sup>1&dagger;</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Toronto & Vector Institute,</span>
+            <span class="author-block"><sup>2</sup>Google,</span>
+            <span class="author-block"><sup>3</sup>TUM</span>
+            <br>
+            &dagger;Joint Advising
+          </div>
+
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="static/good_token_hunting_paper.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/good-token-hunting/gotohunt"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Visual geometry transformers have become powerful architectures for multi-view 3D reconstruction, enabling joint prediction of multiple 3D attributes in a feed-forward manner. However, their computational cost grows quadratically with the input sequence length due to the global attention layers inside these models. This limits both their scalability and efficiency. 
+          </p>
+          <p>
+            In this work, we address this challenge with a simple yet general strategy: restricting the number of key/value tokens that each query interacts with during global attention. To achieve effective token selection, we introduce a two-stage framework. First, an inter-frame selection step operates at the frame level to identify frames that should be preserved. Second, an intra-frame selection step further discards more redundant tokens within the selected frames. 
+          </p>
+          <p>
+            Our analysis highlights the advantage of a diversity-based strategy for inter-frame selection, which ensures broad coverage of the scene. For intra-frame selection, we show that layer-aware sparsification is necessary, with the selection process guided by the entropy of the global attention pattern. Our approach offers a superior speed-accuracy trade-off compared to existing solutions. Extensive experiments show that it accelerates visual geometry transformers by over 85% for scenes with 500 images while maintaining, or even improving, baseline performance, which hints that how our token selection strategy can play a crucial role in future applications of visual geometry transformers.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<!-- <section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <div align="center"><img src="./static/images/teaser_for_web.png" alt="GoToHunt pipeline" width=80% /></div>
+          <p style="text-align: center">
+            <br>
+            Our method, <b>GoToHunt</b>, speeds up visual geometry transformers by selecting a limited budget of tokens that each query can interact with.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Teaser. -->
+  </div>
+</section> -->
+
+
+<section class="section">
+  <div class="column is-full-width">
+
+    <!-- Method. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-three-fifths">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+          Pipeline of GoToHunt as follows. Token selection is performed in the K/V space prior to the global attention layers, to determine which key/value tokens each query token interacts with. Our approach
+follows a two-stage hierarchical design: inter-frame selection first conducts frame-level selection,
+while intra-frame selection subsequently discard more tokens within each selected frame.
+<br>
+<br>
+          <div align="center"><img src="./static/images/gotohunt_pipeline.png" alt="GoToHunt pipeline diagram" width=95% /></div>
+        </div>
+      </div>
+    </div>
+    <!--/ Method. -->
+  </div>
+</section>
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+
+      <h2 class="title is-3 has-text-centered">Camera Pose Estimation</h2>
+      <div class="content has-text-justified" style="max-width: 1100px; margin: 0 auto;">
+        <p style="text-align: left;">
+          Quantitative comparisons on camera pose estimation across 7-Scenes, Neural RGB-D, and TUM-Dynamics. Best is <strong>bold</strong> and second best is <u>underlined</u>, excluding the base model row. 
+          Our method (with inter-frame selection budget K=25) outperforms other methods in accelerating visual geometry transformers, and in some scenarios even achieves better performance than the base model.
+          <br>
+          <br>
+        </p>
+      </div>
+
+      <div class="content has-text-centered">
+        <div style="overflow-x: auto;">
+          <style>
+            .quant-table th.method-col,
+            .quant-table td.method-col {
+              border-right: 2px solid #dbdbdb;
+              text-align: left;
+            }
+            .quant-table th, .quant-table td {
+              text-align: center;
+              vertical-align: middle;
+              white-space: nowrap;
+            }
+            .quant-table .group-divider {
+              border-right: 2px solid #dbdbdb;
+            }
+            .quant-table .base-row td {
+              color: #888;
+              font-style: italic;
+            }
+            .quant-table .ours-row {
+              background: #e9f7fb !important;
+            }
+            .quant-table .backbone-split td {
+              border-top: 2px solid #888;
+            }
+          </style>
+          <table
+            class="table is-striped is-hoverable is-fullwidth quant-table"
+            style="
+              margin: 0 auto;
+              max-width: 1150px;
+              border-top: 2px solid #dbdbdb;
+              border-bottom: 2px solid #dbdbdb;
+            "
+          >
+            <thead>
+              <tr style="background-color: #f5f5f5;">
+                <th rowspan="2" class="method-col" style="vertical-align: middle;">Method</th>
+                <th colspan="3" class="group-divider">7-Scenes</th>
+                <th colspan="3" class="group-divider">Neural RGB-D</th>
+                <th colspan="3">TUM-Dynamics</th>
+              </tr>
+              <tr style="background-color: #f5f5f5;">
+                <th>ATE &darr;</th>
+                <th>RPE-rot &darr;</th>
+                <th class="group-divider">RPE-trans &darr;</th>
+                <th>ATE &darr;</th>
+                <th>RPE-rot &darr;</th>
+                <th class="group-divider">RPE-trans &darr;</th>
+                <th>ATE &darr;</th>
+                <th>RPE-rot &darr;</th>
+                <th>RPE-trans &darr;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="base-row">
+                <td class="method-col">VGGT <em>(Base Model)</em></td>
+                <td>0.0698</td><td>0.4953</td><td class="group-divider">0.0178</td>
+                <td>0.0374</td><td>0.2934</td><td class="group-divider">0.0186</td>
+                <td>0.0118</td><td>0.3083</td><td>0.0098</td>
+              </tr>
+              <tr>
+                <td class="method-col">FastVGGT</td>
+                <td>0.0727</td><td><strong>0.4254</strong></td><td class="group-divider"><strong>0.0159</strong></td>
+                <td>0.0377</td><td><u>0.1985</u></td><td class="group-divider"><u>0.0168</u></td>
+                <td>0.0127</td><td>0.3154</td><td>0.0108</td>
+              </tr>
+              <tr>
+                <td class="method-col">SparseVGGT (SR: 50%)</td>
+                <td>0.0723</td><td>0.4608</td><td class="group-divider">0.0167</td>
+                <td>0.0402</td><td>0.2946</td><td class="group-divider">0.0202</td>
+                <td>0.0125</td><td>0.3114</td><td><u>0.0102</u></td>
+              </tr>
+              <tr>
+                <td class="method-col">SparseVGGT (SR: 75%)</td>
+                <td>0.0735</td><td>0.4583</td><td class="group-divider">0.0169</td>
+                <td>0.0462</td><td>0.2717</td><td class="group-divider">0.0192</td>
+                <td>0.0127</td><td>0.3120</td><td>0.0103</td>
+              </tr>
+              <tr>
+                <td class="method-col">Co-Me</td>
+                <td>0.0870</td><td>0.8105</td><td class="group-divider">0.0340</td>
+                <td>0.0626</td><td>0.4567</td><td class="group-divider">0.0336</td>
+                <td>0.0156</td><td>0.3438</td><td>0.0146</td>
+              </tr>
+              <tr>
+                <td class="method-col">LiteVGGT</td>
+                <td>0.0798</td><td>0.6888</td><td class="group-divider">0.0238</td>
+                <td>0.0531</td><td>0.3311</td><td class="group-divider">0.0247</td>
+                <td>0.0145</td><td>0.3250</td><td>0.0119</td>
+              </tr>
+              <tr class="ours-row">
+                <td class="method-col">GoToHunt (Ours) (&sigma;=2)</td>
+                <td><strong>0.0673</strong></td><td><u>0.4471</u></td><td class="group-divider"><u>0.0165</u></td>
+                <td><strong>0.0267</strong></td><td><strong>0.1794</strong></td><td class="group-divider"><strong>0.0162</strong></td>
+                <td><strong>0.0115</strong></td><td><u>0.3087</u></td><td><strong>0.0101</strong></td>
+              </tr>
+              <tr class="ours-row">
+                <td class="method-col">GoToHunt (Ours) (&sigma;=3)</td>
+                <td><u>0.0677</u></td><td>0.4495</td><td class="group-divider">0.0166</td>
+                <td><u>0.0270</u></td><td>0.2409</td><td class="group-divider">0.0176</td>
+                <td><u>0.0119</u></td><td><strong>0.3075</strong></td><td><u>0.0102</u></td>
+              </tr>
+              <tr class="base-row backbone-split">
+                <td class="method-col">&pi;<sup>3</sup> <em>(Base Model)</em></td>
+                <td>0.0573</td><td>0.3389</td><td class="group-divider">0.0105</td>
+                <td>0.0251</td><td>0.1031</td><td class="group-divider">0.0098</td>
+                <td>0.0140</td><td>0.3073</td><td>0.0088</td>
+              </tr>
+              <tr>
+                <td class="method-col">Sparse-&pi;<sup>3</sup> (SR: 50%)</td>
+                <td>0.0580</td><td><strong>0.3369</strong></td><td class="group-divider"><strong>0.0106</strong></td>
+                <td>0.0313</td><td><strong>0.1182</strong></td><td class="group-divider"><strong>0.0115</strong></td>
+                <td><strong>0.0140</strong></td><td><strong>0.3068</strong></td><td>0.0090</td>
+              </tr>
+              <tr>
+                <td class="method-col">Sparse-&pi;<sup>3</sup> (SR: 75%)</td>
+                <td>0.0594</td><td><u>0.3387</u></td><td class="group-divider"><u>0.0108</u></td>
+                <td>0.0478</td><td>0.1250</td><td class="group-divider">0.0124</td>
+                <td><u>0.0141</u></td><td>0.3094</td><td>0.0092</td>
+              </tr>
+              <tr>
+                <td class="method-col">Speed3R</td>
+                <td>0.0591</td><td>0.3800</td><td class="group-divider">0.0133</td>
+                <td>0.0391</td><td>0.1735</td><td class="group-divider">0.0145</td>
+                <td>0.0193</td><td>0.3152</td><td>0.0103</td>
+              </tr>
+              <tr class="ours-row">
+                <td class="method-col">GoToHunt (Ours) (&sigma;=2)</td>
+                <td><u>0.0579</u></td><td>0.3445</td><td class="group-divider">0.0113</td>
+                <td><strong>0.0292</strong></td><td><u>0.1190</u></td><td class="group-divider"><u>0.0123</u></td>
+                <td>0.0142</td><td><u>0.3075</u></td><td><strong>0.0089</strong></td>
+              </tr>
+              <tr class="ours-row">
+                <td class="method-col">GoToHunt (Ours) (&sigma;=3)</td>
+                <td><strong>0.0570</strong></td><td>0.3428</td><td class="group-divider">0.0112</td>
+                <td><strong>0.0292</strong></td><td>0.1192</td><td class="group-divider"><u>0.0123</u></td>
+                <td>0.0144</td><td>0.3083</td><td><strong>0.0089</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+
+      <h2 class="title is-3 has-text-centered">3D Reconstruction Visualization</h2>
+      <div class="content has-text-justified" style="max-width: 1100px; margin: 0 auto;">
+        <p style="text-align: left;">
+          Reconstructed point cloud using our method with the budget of each query only interacting with keys/values from 25 frames out of a sequence with up to 500 frames.
+          <br>
+          <br>
+        </p>
+      </div>
+
+      <style>
+        .demo-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.2rem;
+          margin-top: 1.5rem;
+        }
+        .demo-item video {
+          width: 100%;
+          height: auto;
+          border-radius: 8px;
+        }
+        .demo-item {
+          text-align: center;
+        }
+      </style>
+
+      <div class="demo-grid">
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/breakfast_room_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/green_room_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/grey_white_room_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/morning_apartment_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/staircase_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/thin_geometry_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/whiteroom_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/fire_seq-04_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/heads_seq-01_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/office_seq-07_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/redkitchen_seq-06_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+
+        <div class="demo-item">
+          <video controls muted loop preload="metadata">
+            <source src="static/videos/stairs_seq-01_recon_pred.mp4" type="video/mp4">
+          </video>
+        </div>
+
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Acknowledgements</h2>
+        <div class="content has-text-justified">
+          <p>
+            Thank the authors of <a href="https://github.com/facebookresearch/map-anything">MapAnything</a>, <a href="https://github.com/CUT3R/CUT3R">CUT3R</a>, <a href="https://github.com/mystorm16/FastVGGT">FastVGGT</a>, <a href="https://github.com/wzzheng/StreamVGGT">StreamVGGT</a>, and many other inspiring works in the community.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            The website template is borrowed from the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of the Nerfies website. Thanks the authors for sharing this great template!
+          </p>
+        </div>
+      </div>
+    </div>
+</footer>
+
+</body>
+</html>
